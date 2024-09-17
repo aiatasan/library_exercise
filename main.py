@@ -142,7 +142,7 @@ def list_books(db: sqlite3.Connection = Depends(get_db)):
 
 
 # Task 1: Delete a book
-@app.delete("/books/delete")
+@app.delete("/books/{book_id}")
 def delete_book(book_id: int, db: sqlite3.Connection = Depends(get_db)):
     cursor = db.cursor()
     cursor.execute("SELECT * FROM books WHERE id = ?", (book_id,))
@@ -156,9 +156,12 @@ def delete_book(book_id: int, db: sqlite3.Connection = Depends(get_db)):
 # Task 2: Search books by title
 @app.get("/books/search/", response_model=List[Book])
 def search_books(title: str, db: sqlite3.Connection = Depends(get_db)):
+    print(title)
     cursor = db.cursor()
     cursor.execute("SELECT * FROM books WHERE title LIKE ?", (f"%{title}%",))
     books = cursor.fetchall()
+    if books is None:
+        return []
     return [
             {
                 "id": book[0], "title": book[1],
